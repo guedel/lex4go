@@ -1,4 +1,4 @@
-package generator
+package main
 
 type GeneratorInterface interface {
 	DoStartDocument(vars any)

@@ -1,4 +1,4 @@
-package generator
+package main
 
 type CompareChar struct {
 	ch string
