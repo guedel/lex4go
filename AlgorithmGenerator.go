@@ -196,21 +196,21 @@ func (g *AlgorithmGenerator) DoPrototype(actions []string) {
 
 func (g *AlgorithmGenerator) VisitCompare(c CompareInterface) {
 	w := &(g.writer)
-	switch c.(type) {
+	switch c := c.(type) {
 	case CompareEos:
 		w.println("Code(d.ch) = 0")
 	case CompareAny:
 		g.writer.println("vrai")
 	case CompareChar:
-		w.println("d.ch = '" + c.(CompareChar).ch + "'")
+		w.println("d.ch = '" + c.ch + "'")
 	case CompareCharset:
-		g.DoTestCharset(c.(CompareCharset).name)
+		g.DoTestCharset(c.XMLName.Local)
 	case CompareLike:
-		w.println("d.ch Commme " + g.Quote(c.(CompareLike).expression))
+		w.println("d.ch Commme " + g.Quote(c.Expression))
 	case CompareAnd:
 		w.print("(")
 		g.testLevel++
-		for index, child := range c.(CompareAnd).childs {
+		for index, child := range c.childs {
 			if index > 0 {
 				w.print(" Et ")
 			}
@@ -221,7 +221,7 @@ func (g *AlgorithmGenerator) VisitCompare(c CompareInterface) {
 	case CompareOr:
 		w.print("(")
 		g.testLevel++
-		for index, child := range c.(CompareOr).childs {
+		for index, child := range c.childs {
 			if index > 0 {
 				w.print(" Ou ")
 			}

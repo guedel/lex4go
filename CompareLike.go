@@ -1,7 +1,10 @@
 package main
 
+import "encoding/xml"
+
 type CompareLike struct {
-	expression string
+	XMLName    xml.Name `xml:"like"`
+	Expression string   `xml:",chardata"`
 }
 
 func (c CompareLike) getKind() TestKind {

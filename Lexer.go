@@ -1,12 +1,15 @@
 package main
 
+import "encoding/xml"
+
 type Lexer struct {
-	Name         string `xml:"name"`
-	Author       string `xml:"author"`
-	Description  string `xml:"description"`
-	CreationDate string
+	XMLName      xml.Name `xml:"lexer"`
+	Name         string   `xml:"name"`
+	Author       string   `xml:"author"`
+	Description  string   `xml:"description"`
+	CreationDate string   `xml:"dateCreation"`
 	UpdateDate   string
-	Rules        []Rule `xml:"rule"`
+	Rules        []Rule `xml:"rules>rule"`
 }
 
 /*

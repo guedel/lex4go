@@ -50,8 +50,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		var data Lexer
-		if err := xml.Unmarshal(source, &data); err != nil {
+		var lexer Lexer
+		if err := xml.Unmarshal(source, &lexer); err != nil {
 			log.Fatal(err)
 		}
 		// fmt.Println("Main source:", string(source))
@@ -60,7 +60,7 @@ func main() {
 
 		}
 
-		fmt.Printf("%v\n", data)
+		fmt.Printf("%v\n", lexer)
 	}
 
 	// TODO:

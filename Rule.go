@@ -1,20 +1,18 @@
 package main
 
-type Rule struct {
-	Id      string           `xml:"id,attr"`
-	From    string           `xml:"from,attr"`
-	To      string           `xml:"to,attr"`
-	Compare CompareInterface `xml:"test"`
-	Repeat  int              `xml:"repeat,attr"`
-	Final   bool             `xml:"final"`
-	Concat  bool             `xml:"concat"`
-	Reset   bool             `xml:"reset"`
-	Action  string           `xml:"action"`
-}
+import (
+	"encoding/xml"
+)
 
-/*
-func (r *Rule) UnmarshalText(text []byte) error {
-	fmt.Println("Rule.UnmarshalText: ", string(text))
-	return nil
+type Rule struct {
+	XMLName xml.Name `xml:"rule"`
+	Id      string   `xml:"id,attr"`
+	From    string   `xml:"from,attr"`
+	To      string   `xml:"to,attr"`
+	Test    Compare  `xml:"test"`
+	Repeat  int      `xml:"repeat,attr"`
+	Final   bool     `xml:"final"`
+	Concat  bool     `xml:"concat"`
+	Reset   bool     `xml:"reset"`
+	Action  string   `xml:"action"`
 }
-*/

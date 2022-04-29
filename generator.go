@@ -50,7 +50,7 @@ func GenerateStateEngine(lexer Lexer, language LanguageType, testMode bool, genP
 			gen.DoElseIf()
 		}
 		oldState = state
-		gen.VisitCompare(rule.Compare)
+		gen.VisitCompare(rule.Test.Compare)
 		if rule.Repeat > 0 {
 			useLoop = true
 			gen.DoMaxLoops(rule.Repeat)
