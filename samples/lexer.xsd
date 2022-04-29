@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="lexer">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="0"/>
+                <xs:element name="author" type="xs:string" minOccurs="0" />
+                <xs:element name="description" type="xs:string" minOccurs="0" />
+                <xs:element name="dateCreation" type="xs:date" minOccurs="0" />
+                <xs:element name="rules">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="rule" type="RuleType" minOccurs="0" maxOccurs="unbounded" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="RuleType">
+        <xs:sequence>
+            <xs:element name="test" type="OperationType" />
+            <xs:element name="concat" type="xs:boolean" minOccurs="0" />
+            <xs:element name="reset" type="xs:boolean" minOccurs="0"/>
+            <xs:element name="action" type="xs:string" minOccurs="0" />
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" />
+        <xs:attribute name="from" type="xs:string" use="required" />
+        <xs:attribute name="to" type="xs:string" use="required" />
+        <xs:attribute name="final" type="xs:boolean" />
+        <xs:attribute name="repeat" type="xs:integer" /> 
+    </xs:complexType>
+
+
+    <xs:complexType name="OperationType">
+        <xs:choice>
+            <xs:element name="eos" />
+            <xs:element name="char" type="xs:string" />
+            <xs:element name="charset" type="CharsetType" />
+            <xs:element name="name" type="xs:string" />
+            <xs:element name="unicode" type="UnicodeType" />
+            <xs:element name="like" type="like" />
+            <xs:element name="and" type="OperationType" maxOccurs="unbounded" />
+            <xs:element name="or" type="OperationType" maxOccurs="unbounded" />
+        </xs:choice>            
+    </xs:complexType>
+
+    <!--
+        CHAR: la caractère en lui-même
+        CHARSET: le nom d'un ensemble de caractères Ascii. Un parmi: DIGIT, PUNCT, ALPHA, UPPER, LOWER, BLANK
+        NAME: le nom d'un caractère. 
+        UNICODE: code du caractère
+        LIKE: 
+        AND: combinaison de tests
+        OR: alternatives
+    -->
+
+    <xs:simpleType name="CharsetType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="DIGIT" />
+            <xs:enumeration value="XDIGIT" />
+            <xs:enumeration value="ALPHA" />
+            <xs:enumeration value="UPPER" />
+            <xs:enumeration value="LOWER" />
+            <xs:enumeration value="PUNCT" />
+            <xs:enumeration value="SPACE" />
+            <xs:enumeration value="CONTROL" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="like">
+        <xs:restriction base="xs:string" />
+    </xs:simpleType>
+
+    <xs:simpleType name="UnicodeType">
+        <xs:restriction base="xs:string" >
+            <xs:pattern value="U[0-9a-fA-F]{4}" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Attributs-->
+</xs:schema>
