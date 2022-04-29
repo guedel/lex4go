@@ -22,13 +22,14 @@ func (g *AlgorithmGenerator) Escape(c string) string {
 func (g *AlgorithmGenerator) DoStartDocument(vars any) {
 	if g.writer == (CodeWriter{}) {
 		g.writer = newCodeWriter()
+		g.writer.spacer = "\t"
 	}
 	const tpl string = `
-// {{Nom}}	
+// {{.Name}}	
 // ----------------------------
-// Création de {{.Auteur}}
-// Créé le {{.DateCreation}}
-// Modifié le {{.DateModif}}
+// Création de {{.Author}}
+// Créé le {{.CreationDate}}
+// Modifié le {{.UpdateDate}}
 
 Classe Scanner
 
@@ -38,9 +39,9 @@ Classe Scanner
 		var token: Chaine
 		var cnt: Entier
 	Fin Structure
-
 `
 	g.writer.printTemplate(tpl, vars)
+	g.writer.indentation = 2
 }
 
 func (g *AlgorithmGenerator) DoEndDocument(vars any) {
@@ -77,6 +78,7 @@ func (g *AlgorithmGenerator) DoGenerateProlog(vars any) {
 			Selon d.état
 `
 	g.writer.printTemplate(tpl, vars)
+	g.writer.indentation = 5
 }
 
 func (g *AlgorithmGenerator) DoGenerateEpilog(finalState string) {
@@ -90,19 +92,20 @@ func (g *AlgorithmGenerator) DoGenerateEpilog(finalState string) {
 			Lève Exception_UnexpectedEnd
 		Fin Si
 	Fin Procédure
-	`
+`
 	var vars = make(map[string]string)
 	vars["finalState"] = g.Escape(finalState)
 	g.writer.printTemplate(tpl, vars)
+	g.writer.nl()
+	g.writer.indentation = 1
 }
 
 func (g *AlgorithmGenerator) DoClosePreviousIf() {
-	const tpl string = `
-	Sinon
-		Lève Exception_UnexcpectedChar
-	Fin Si
-	`
-	g.writer.printTemplate(tpl, nil)
+	w := &(g.writer)
+	w.unindent()
+	w.println("Sinon").indent()
+	w.println("Lève Exception_UnexcpectedChar").unindent()
+	w.println("Fin Si").nl()
 }
 
 func (g *AlgorithmGenerator) DoStartNewState(state string) {
@@ -147,7 +150,7 @@ func (g *AlgorithmGenerator) DoTestCharset(charset string) {
 	case "XDIGIT":
 		test = "estChiffreHexa(ch)"
 	}
-	g.writer.println(test + " Alors").indent()
+	g.writer.print(test)
 }
 
 func (g *AlgorithmGenerator) DoTestAny() {
@@ -156,7 +159,7 @@ func (g *AlgorithmGenerator) DoTestAny() {
 
 func (g *AlgorithmGenerator) DoMaxLoops(maxloops int) {
 	w := &(g.writer)
-	w.println(fmt.Sprintf("Si d.cnd > %d Alors", maxloops)).indent()
+	w.println(fmt.Sprintf("Si d.cnt > %d Alors", maxloops)).indent()
 	w.println("Lève Exception_UnexpectedChar").unindent()
 	w.println("Fin Si")
 }
@@ -197,17 +200,17 @@ func (g *AlgorithmGenerator) DoPrototype(actions []string) {
 func (g *AlgorithmGenerator) VisitCompare(c CompareInterface) {
 	w := &(g.writer)
 	switch c := c.(type) {
-	case CompareEos:
-		w.println("Code(d.ch) = 0")
+	case *CompareEos:
+		w.print("Code(d.ch) = 0")
 	case CompareAny:
-		g.writer.println("vrai")
-	case CompareChar:
-		w.println("d.ch = '" + c.ch + "'")
-	case CompareCharset:
-		g.DoTestCharset(c.XMLName.Local)
-	case CompareLike:
-		w.println("d.ch Commme " + g.Quote(c.Expression))
-	case CompareAnd:
+		w.print("vrai")
+	case *CompareChar:
+		w.print("d.ch = '" + c.ch + "'")
+	case *CompareCharset:
+		g.DoTestCharset(c.Name)
+	case *CompareLike:
+		w.print("d.ch Commme " + g.Quote(c.Expression))
+	case *CompareAnd:
 		w.print("(")
 		g.testLevel++
 		for index, child := range c.childs {
@@ -218,7 +221,7 @@ func (g *AlgorithmGenerator) VisitCompare(c CompareInterface) {
 		}
 		g.testLevel--
 		w.print(")")
-	case CompareOr:
+	case *CompareOr:
 		w.print("(")
 		g.testLevel++
 		for index, child := range c.childs {

@@ -16,7 +16,7 @@ type CodeWriter struct {
 
 func newCodeWriter() CodeWriter {
 	return CodeWriter{
-		spacer:      " ",
+		spacer:      "    ",
 		indentation: 0,
 		current:     "",
 	}
@@ -28,7 +28,9 @@ func (c *CodeWriter) indent() *CodeWriter {
 }
 
 func (c *CodeWriter) unindent() *CodeWriter {
-	c.indentation--
+	if c.indentation > 0 {
+		c.indentation--
+	}
 	return c
 }
 

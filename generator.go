@@ -26,6 +26,9 @@ func (l LanguageType) getGenerator() GeneratorInterface {
 	return nil
 }
 
+/**
+ * Procédure de génération de la machine à états.
+ */
 func GenerateStateEngine(lexer Lexer, language LanguageType, testMode bool, genProto bool) error {
 	gen := language.getGenerator()
 
@@ -62,7 +65,7 @@ func GenerateStateEngine(lexer Lexer, language LanguageType, testMode bool, genP
 			s := rule.Action
 			gen.DoAction(s, transition, useLoop, testMode)
 			if genProto {
-				actions = append(actions, rule.Action)
+				actions = addUnique(actions, rule.Action)
 			}
 		}
 
@@ -72,7 +75,9 @@ func GenerateStateEngine(lexer Lexer, language LanguageType, testMode bool, genP
 		if rule.Concat {
 			gen.DoAddToToken()
 		}
-		gen.DoNewState(rule.To)
+		if rule.To != state {
+			gen.DoNewState(rule.To)
+		}
 		if rule.Final {
 			if len(finalState) > 0 {
 				return GeneratorError{"Duplicate final state"}
@@ -86,4 +91,20 @@ func GenerateStateEngine(lexer Lexer, language LanguageType, testMode bool, genP
 	}
 	gen.DoEndDocument(vars)
 	return nil
+}
+
+/**
+ * N'ajoute que si le token n'existe pas encore
+ */
+func addUnique(vars []string, token string) []string {
+	find := false
+	for _, value := range vars {
+		if value == token {
+			find = true
+		}
+	}
+	if !find {
+		return append(vars, token)
+	}
+	return vars
 }

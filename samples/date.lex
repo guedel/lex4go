@@ -5,6 +5,7 @@
     <name>Date1</name>
     <author>Guillaume de Lestanville</author>
     <description>Premier exemple simple d'analyse de date</description>
+    <dateCreation>2020-12-10</dateCreation>
     <rules>
         <rule id="1" from="0" to="0" repeat="3">
             <test>

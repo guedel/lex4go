@@ -21,11 +21,15 @@ import (
 func main() {
 	var language string
 	var useHelp bool
+	var testMode bool
+	var genProto bool
 	var languageToUse LanguageType
 	flag.StringVar(&language, "language", "algorithm", "Language to use")
 	flag.StringVar(&language, "l", "algorithm", "Language to use (shorthand)")
 	flag.BoolVar(&useHelp, "help", false, "Display help")
 	flag.BoolVar(&useHelp, "h", false, "Display help (shorthand)")
+	flag.BoolVar(&testMode, "t", false, "Generate with test mode")
+	flag.BoolVar(&genProto, "p", false, "Generate with action prototype method")
 
 	flag.Parse()
 	if flag.Arg(0) == "" || useHelp {
@@ -54,13 +58,8 @@ func main() {
 		if err := xml.Unmarshal(source, &lexer); err != nil {
 			log.Fatal(err)
 		}
-		// fmt.Println("Main source:", string(source))
 
-		if languageToUse == Algorithm {
-
-		}
-
-		fmt.Printf("%v\n", lexer)
+		GenerateStateEngine(lexer, languageToUse, testMode, genProto)
 	}
 
 	// TODO:
