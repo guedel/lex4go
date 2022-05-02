@@ -1,4 +1,4 @@
-package main
+package generator
 
 import (
 	"fmt"
@@ -83,9 +83,9 @@ func (g *AlgorithmGenerator) DoGenerateProlog(vars any) {
 
 func (g *AlgorithmGenerator) DoGenerateEpilog(finalState string) {
 	const tpl string = `
-				Sinon
-					Lève Exception_UnexpectedChar
-				Fin Si
+					Sinon
+						Lève Exception_UnexpectedChar
+					Fin Si
 			Fin Selon
 		Fin Pour
 		Si état <> "{{.finalState}}" Alors

@@ -1,5 +1,7 @@
 package main
 
+import "github.com/guedel/lex4go/generator"
+
 type LanguageType uint
 
 type GeneratorError struct {
@@ -18,10 +20,10 @@ const (
 	// TODO
 )
 
-func (l LanguageType) getGenerator() GeneratorInterface {
+func (l LanguageType) getGenerator() generator.GeneratorInterface {
 	switch l {
 	case Algorithm:
-		return &AlgorithmGenerator{}
+		return &generator.AlgorithmGenerator{}
 	}
 	return nil
 }
