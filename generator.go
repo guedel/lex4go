@@ -2,8 +2,6 @@ package main
 
 import "github.com/guedel/lex4go/generator"
 
-type LanguageType uint
-
 type GeneratorError struct {
 	message string
 }
@@ -12,27 +10,10 @@ func (e GeneratorError) Error() string {
 	return e.message
 }
 
-const (
-	Algorithm = iota
-	VisualBasic
-	Php
-	Go
-	// TODO
-)
-
-func (l LanguageType) getGenerator() generator.GeneratorInterface {
-	switch l {
-	case Algorithm:
-		return &generator.AlgorithmGenerator{}
-	}
-	return nil
-}
-
 /**
  * Procédure de génération de la machine à états.
  */
-func GenerateStateEngine(lexer Lexer, language LanguageType, testMode bool, genProto bool) error {
-	gen := language.getGenerator()
+func GenerateStateEngine(lexer Lexer, gen generator.GeneratorInterface, testMode bool, genProto bool) error {
 
 	var vars map[string]string
 	var useLoop bool

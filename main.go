@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
+	"github.com/guedel/lex4go/generator"
 	"log"
 	"os"
 	"strings"
@@ -15,6 +16,9 @@ import (
 
 	où options:
 	- l, language : langage de génération. Par défaut algorithme.
+	- h, help: affichage de l'aide
+	- t: utilisation du mode test
+	- p: génération du prototype de méthode pour les actions
 
 */
 
@@ -23,7 +27,6 @@ func main() {
 	var useHelp bool
 	var testMode bool
 	var genProto bool
-	var languageToUse LanguageType
 	flag.StringVar(&language, "language", "algorithm", "Language to use")
 	flag.StringVar(&language, "l", "algorithm", "Language to use (shorthand)")
 	flag.BoolVar(&useHelp, "help", false, "Display help")
@@ -34,17 +37,16 @@ func main() {
 	flag.Parse()
 	if flag.Arg(0) == "" || useHelp {
 		flag.PrintDefaults()
+		return
 	}
 
+	var gen generator.GeneratorInterface
 	switch strings.ToLower(language) {
 	case "algorithm", "algo":
-		languageToUse = Algorithm
+		gen = &generator.AlgorithmGenerator{}
 	case "visualbasic", "vb":
-		languageToUse = VisualBasic
 	case "go":
-		languageToUse = Go
 	case "php":
-		languageToUse = Php
 	}
 
 	fmt.Printf("Language choice: %s\n", language)
@@ -59,10 +61,6 @@ func main() {
 			log.Fatal(err)
 		}
 
-		GenerateStateEngine(lexer, languageToUse, testMode, genProto)
+		GenerateStateEngine(lexer, gen, testMode, genProto)
 	}
-
-	// TODO:
-	// - lire le/s fichier/s
-	// - lancer la génération
 }
