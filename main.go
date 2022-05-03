@@ -44,9 +44,13 @@ func main() {
 	switch strings.ToLower(language) {
 	case "algorithm", "algo":
 		gen = &generator.AlgorithmGenerator{}
-	case "visualbasic", "vb":
-	case "go":
-	case "php":
+	/*
+		case "visualbasic", "vb":
+		case "go":
+		case "php":
+	*/
+	default:
+		log.Fatal("Unknown language")
 	}
 
 	fmt.Printf("Language choice: %s\n", language)

@@ -12,6 +12,7 @@ type CodeWriter struct {
 	spacer      string
 	indentation uint
 	current     string
+	out         os.File
 }
 
 func newCodeWriter() CodeWriter {
@@ -19,6 +20,7 @@ func newCodeWriter() CodeWriter {
 		spacer:      "    ",
 		indentation: 0,
 		current:     "",
+		out:         *os.Stdout,
 	}
 }
 
@@ -47,7 +49,7 @@ func (c *CodeWriter) println(msg string) *CodeWriter {
 
 func (c *CodeWriter) printTemplate(tpl string, vars any) *CodeWriter {
 	t := template.Must(template.New("template").Parse(tpl))
-	err := t.Execute(os.Stdout, vars)
+	err := t.Execute(&c.out, vars)
 	if err != nil {
 		log.Println("template error: ", err)
 	}
@@ -55,8 +57,8 @@ func (c *CodeWriter) printTemplate(tpl string, vars any) *CodeWriter {
 }
 
 func (c *CodeWriter) nl() *CodeWriter {
-	fmt.Print(strings.Repeat(c.spacer, int(c.indentation)))
-	fmt.Println(c.current)
+	fmt.Fprint(&c.out, strings.Repeat(c.spacer, int(c.indentation)))
+	fmt.Fprintln(&c.out, c.current)
 	c.current = ""
 	return c
 }

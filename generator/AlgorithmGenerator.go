@@ -30,6 +30,8 @@ func (g *AlgorithmGenerator) DoStartDocument(vars any) {
 // Création de {{.Author}}
 // Créé le {{.CreationDate}}
 // Modifié le {{.UpdateDate}}
+// ----------------------------
+// {{.Description}}
 
 Classe Scanner
 
@@ -82,22 +84,35 @@ func (g *AlgorithmGenerator) DoGenerateProlog(vars any) {
 }
 
 func (g *AlgorithmGenerator) DoGenerateEpilog(finalState string) {
-	const tpl string = `
-					Sinon
-						Lève Exception_UnexpectedChar
-					Fin Si
-			Fin Selon
-		Fin Pour
-		Si état <> "{{.finalState}}" Alors
-			Lève Exception_UnexpectedEnd
-		Fin Si
-	Fin Procédure
-`
-	var vars = make(map[string]string)
-	vars["finalState"] = g.Escape(finalState)
-	g.writer.printTemplate(tpl, vars)
-	g.writer.nl()
-	g.writer.indentation = 1
+	w := &(g.writer)
+	w.unindent()
+	w.println("Sinon").indent()
+	w.println("Lève Exception_UnexpectedChar").unindent()
+	w.println("Fin Si").unindent()
+	w.println("Fin Selon").unindent()
+	w.println("Fin Pour")
+	w.println("Si état <> " + g.Quote(finalState) + " Alors").indent()
+	w.println("Lève Exception_UnexpectedEnd").unindent()
+	w.println("Fin Si").unindent()
+	w.println("Fin Procédure")
+	/*
+			const tpl string = `
+							Sinon
+								Lève Exception_UnexpectedChar
+							Fin Si
+					Fin Selon
+				Fin Pour
+				Si état <> "{{.finalState}}" Alors
+					Lève Exception_UnexpectedEnd
+				Fin Si
+			Fin Procédure
+		`
+			var vars = make(map[string]string)
+			vars["finalState"] = g.Escape(finalState)
+			g.writer.printTemplate(tpl, vars)
+			g.writer.nl()
+			g.writer.indentation = 1
+	*/
 }
 
 func (g *AlgorithmGenerator) DoClosePreviousIf() {

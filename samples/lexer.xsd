@@ -24,12 +24,12 @@
             <xs:element name="test" type="OperationType" />
             <xs:element name="concat" type="xs:boolean" minOccurs="0" />
             <xs:element name="reset" type="xs:boolean" minOccurs="0"/>
+            <xs:element name="final" type="xs:boolean" minOccurs="0" />
             <xs:element name="action" type="xs:string" minOccurs="0" />
         </xs:sequence>
         <xs:attribute name="id" type="xs:string" />
         <xs:attribute name="from" type="xs:string" use="required" />
         <xs:attribute name="to" type="xs:string" use="required" />
-        <xs:attribute name="final" type="xs:boolean" />
         <xs:attribute name="repeat" type="xs:integer" /> 
     </xs:complexType>
 

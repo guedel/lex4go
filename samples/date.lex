@@ -39,10 +39,11 @@
             </test>
             <concat>true</concat>
         </rule>
-        <rule id="6" from="2" to="2" final="true">
+        <rule id="6" from="2" to="2">
             <test>
                 <eos />
              </test>
+             <final>true</final>
             <action>Separator</action>
         </rule>
     </rules>
