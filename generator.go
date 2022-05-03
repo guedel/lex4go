@@ -1,7 +1,6 @@
 package main
 
 import "github.com/guedel/lex4go/generator"
-import "fmt"
 
 type GeneratorError struct {
 	message string

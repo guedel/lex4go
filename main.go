@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/xml"
 	"flag"
-	"fmt"
 	"github.com/guedel/lex4go/generator"
 	"log"
 	"os"
@@ -44,16 +43,18 @@ func main() {
 	switch strings.ToLower(language) {
 	case "algorithm", "algo":
 		gen = &generator.AlgorithmGenerator{}
-	/*
-		case "visualbasic", "vb":
-		case "go":
-		case "php":
-	*/
+	case "visualbasic", "vb":
+		gen = &generator.VbGenerator{}
+	case "go":
+		gen = &generator.GoGenerator{}
+		/*
+			case "php":
+		*/
 	default:
-		log.Fatal("Unknown language")
+		log.Fatal("Unknown language: " + language)
 	}
 
-	fmt.Printf("Language choice: %s\n", language)
+	//fmt.Printf("Language choice: %s\n", language)
 
 	for _, filename := range flag.Args() {
 		source, err := os.ReadFile(filename)
