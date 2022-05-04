@@ -47,6 +47,9 @@ func main() {
 		gen = &generator.VbGenerator{}
 	case "go":
 		gen = &generator.GoGenerator{}
+
+	case "php":
+		gen = &generator.PhpGenerator{}
 		/*
 			case "php":
 		*/
