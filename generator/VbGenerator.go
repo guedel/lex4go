@@ -105,7 +105,7 @@ func (g *VbGenerator) DoGenerateEpilog(finalState string) {
 	w.println("If Err.Number = Err_UnexpectedChar Or ch = vbNullChar Then").indent()
 	w.println("Err.Descritpion = \"Fin de chaine inattendue\"").unindent()
 	w.println("Else").indent()
-	w.println("Err.Description = \"Caractère inattendu \"\" & ch & \" en position \" p").unindent()
+	w.println("Err.Description = \"Caractère inattendu '\" & ch & \"' en position \" & p").unindent()
 	w.println("End If")
 	w.println("Err.Raise Err.Number").unindent()
 	w.println("End Sub")
@@ -197,6 +197,7 @@ func (g *VbGenerator) DoNewState(state string) {
 
 func (g *VbGenerator) DoPrototype(actions []string) {
 	w := &(g.writer)
+	w.nl()
 	w.println("Sub OnAction(sTransition as String, sAction as String, var data As DataScanner)").indent()
 	w.println("Select Case sAction").indent()
 	for _, action := range actions {

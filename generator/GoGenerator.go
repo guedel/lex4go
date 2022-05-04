@@ -37,14 +37,19 @@ package Scanner
 
 import (
 	"fmt"
-	"regexp
+	"regexp"
 )	
 
-type Scanner struct {
+type ScannerData struct {
 	state string
 	ch string
 	token string
-	cnt integer
+	cnt int
+}
+
+func like(ch string, expr string) bool {
+	result,_ := regexp.MatchString(expr, ch)
+	return result
 }
 `
 	g.writer.printTemplate(tpl, vars)
@@ -59,7 +64,7 @@ func (g *GoGenerator) DoGenerateProlog(vars any) {
 func Scanner(s string) error {
 	oldstate := ""
 
-	d := Scanner{
+	d := ScannerData{
 		state: "0",
 		ch: "",
 		token: "",
@@ -68,7 +73,7 @@ func Scanner(s string) error {
 
 	s = s + string(0)
 
-	for p := 0;p < strlen(str); p++ {
+	for p := 0;p < len(s); p++ {
 		if d.state == oldstate {
 			d.cnt ++
 		} else {
@@ -88,15 +93,14 @@ func (g *GoGenerator) DoGenerateEpilog(finalState string) {
 	w := &(g.writer)
 	w.unindent()
 	w.println("} else {").indent()
-	w.println("return \"Unexpected Char\"").unindent()
-	w.println("} // if ").unindent()
+	w.println("return fmt.Errorf(\"Unexpected Char\")").unindent()
+	w.println("} // if ").unindent().unindent()
 	w.println("} // switch ").unindent()
 	w.println("} // for")
 	w.println("if d.state != " + g.Quote(finalState) + " {").indent()
-	w.println("return \"Unexpected End\"").unindent()
+	w.println("return fmt.Errorf(\"Unexpected End\")").unindent()
 	w.println("}")
-	w.println("return nil")
-	w.println("}").unindent()
+	w.println("return nil").unindent()
 	w.println("}").unindent()
 }
 
@@ -104,7 +108,7 @@ func (g *GoGenerator) DoClosePreviousIf() {
 	w := &(g.writer)
 	w.unindent()
 	w.println("} else {").indent()
-	w.println("return \"Unexpected Char\"").unindent()
+	w.println("return fmt.Errorf(\"Unexpected Char\")").unindent()
 	w.println("}").nl()
 }
 
@@ -120,10 +124,6 @@ func (g *GoGenerator) DoElseIf() {
 	w := &(g.writer)
 	w.unindent()
 	w.print("} else if ")
-}
-
-func (g *GoGenerator) DoTestLike(expr string) {
-	g.writer.println("d.ch like " + g.Quote(expr) + " {").indent()
 }
 
 func (g *GoGenerator) DoTestCharset(charset string) {
@@ -160,7 +160,7 @@ func (g *GoGenerator) DoTestAny() {
 func (g *GoGenerator) DoMaxLoops(maxloops int) {
 	w := &(g.writer)
 	w.println(fmt.Sprintf("if d.cnt > %d {", maxloops)).indent()
-	w.println("return \"Unexpected Char\"").unindent()
+	w.println("return fmt.Errorf(\"Unexpected Char\")").unindent()
 	w.println("}")
 }
 
@@ -168,7 +168,7 @@ func (g *GoGenerator) DoAction(action string, transition string, useLoops bool, 
 	if testMode {
 		g.writer.println(fmt.Sprintf("fmt.Println(\"Appel de '%s' pour la transition '%s'\")", g.Escape(action), g.Escape(transition)))
 	} else {
-		g.writer.println(fmt.Sprintf("OnAction(%s, %s, d)", g.Quote(action), g.Quote(transition)))
+		g.writer.println(fmt.Sprintf("OnAction(%s, %s, &d)", g.Quote(action), g.Quote(transition)))
 	}
 }
 
@@ -186,7 +186,7 @@ func (g *GoGenerator) DoNewState(state string) {
 
 func (g *GoGenerator) DoPrototype(actions []string) {
 	w := &(g.writer)
-	w.println("func OnAction(sTransition string, sAction string, data: *Scanner)").indent()
+	w.println("func OnAction(sTransition string, sAction string, data *ScannerData) {").indent()
 	w.println("switch sAction {").indent()
 	for _, action := range actions {
 		w.println("case " + g.Quote(action) + ":").indent()
@@ -201,15 +201,15 @@ func (g *GoGenerator) VisitCompare(c CompareInterface) {
 	w := &(g.writer)
 	switch c := c.(type) {
 	case *CompareEos:
-		w.print("asc(d.ch) = 0")
+		w.print("int(d.ch) == 0")
 	case CompareAny:
 		w.print("true")
 	case *CompareChar:
-		w.print("d.ch = '" + c.ch + "'")
+		w.print("d.ch == '" + c.ch + "'")
 	case *CompareCharset:
 		g.DoTestCharset(c.Name)
 	case *CompareLike:
-		w.print("d.ch like " + g.Quote(c.Expression))
+		w.print("like(d.ch, " + g.Quote(c.Expression) + ")")
 	case *CompareAnd:
 		w.print("(")
 		g.testLevel++
