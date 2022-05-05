@@ -19,13 +19,20 @@ func (r *Compare) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 		case xml.StartElement:
 			// fmt.Println("Test.UnmarshalXML.StartElement: ", tt)
 			switch tt.Name.Local {
+			case "any":
+				i = new(CompareAny)
+			case "char":
+				i = new(CompareChar)
 			case "charset":
 				i = new(CompareCharset)
-			case "like":
-				i = new(CompareLike)
 			case "eos":
 				i = new(CompareEos)
+			case "in":
+				i = new(CompareIn)
+			case "or":
+				i = new(CompareOr)
 			}
+
 			if i != nil {
 				err = d.DecodeElement(i, &tt)
 				if err != nil {

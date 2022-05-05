@@ -8,6 +8,9 @@
                 <xs:element name="author" type="xs:string" minOccurs="0" />
                 <xs:element name="description" type="xs:string" minOccurs="0" />
                 <xs:element name="dateCreation" type="xs:date" minOccurs="0" />
+                <xs:element name="initial" type="xs:string">
+                    <!-- inital state of scanner -->
+                </xs:element>
                 <xs:element name="rules">
                     <xs:complexType>
                         <xs:sequence>
@@ -41,10 +44,22 @@
             <xs:element name="charset" type="CharsetType" />
             <xs:element name="name" type="xs:string" />
             <xs:element name="unicode" type="UnicodeType" />
-            <xs:element name="like" type="like" />
-            <xs:element name="and" type="OperationType" maxOccurs="unbounded" />
-            <xs:element name="or" type="OperationType" maxOccurs="unbounded" />
+            <xs:element name="in" type="xs:string" />
+            <xs:element name="or" type="GroupOperationType" />
         </xs:choice>            
+    </xs:complexType>
+
+    <xs:complexType name="GroupOperationType">
+        <xs:sequence>
+            <xs:element name="eos" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="char" type="xs:string" maxOccurs="unbounded" minOccurs="0" />
+            <xs:element name="charset" type="CharsetType" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="name" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="unicode" type="UnicodeType" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="in" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="or" type="GroupOperationType" maxOccurs="unbounded" minOccurs="0" />
+        </xs:sequence>
+
     </xs:complexType>
 
     <!--

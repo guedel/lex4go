@@ -223,19 +223,6 @@ func (g *AlgorithmGenerator) VisitCompare(c CompareInterface) {
 		w.print("d.ch = '" + c.ch + "'")
 	case *CompareCharset:
 		g.DoTestCharset(c.Name)
-	case *CompareLike:
-		w.print("d.ch Commme " + g.Quote(c.Expression))
-	case *CompareAnd:
-		w.print("(")
-		g.testLevel++
-		for index, child := range c.childs {
-			if index > 0 {
-				w.print(" Et ")
-			}
-			child.accept(g)
-		}
-		g.testLevel--
-		w.print(")")
 	case *CompareOr:
 		w.print("(")
 		g.testLevel++
@@ -247,11 +234,8 @@ func (g *AlgorithmGenerator) VisitCompare(c CompareInterface) {
 		}
 		g.testLevel--
 		w.print(")")
-		/*
-			case In:
-				w.print("Dans (")
-				w.print(")")
-		*/
+	case *CompareIn:
+		w.print("d.ch Dans (" + c.Expression + ")")
 	}
 
 	if g.testLevel == 0 {

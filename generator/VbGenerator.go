@@ -220,19 +220,8 @@ func (g *VbGenerator) VisitCompare(c CompareInterface) {
 		w.print("d.ch = " + g.Quote("ch"))
 	case *CompareCharset:
 		g.DoTestCharset(c.Name)
-	case *CompareLike:
-		w.print("d.ch Like " + g.Quote(c.Expression))
-	case *CompareAnd:
-		w.print("(")
-		g.testLevel++
-		for index, child := range c.childs {
-			if index > 0 {
-				w.print(" And ")
-			}
-			child.accept(g)
-		}
-		g.testLevel--
-		w.print(")")
+	case *CompareIn:
+		w.print("instr(" + g.Quote(c.Expression) + ", d.ch)>0")
 	case *CompareOr:
 		w.print("(")
 		g.testLevel++
@@ -244,11 +233,6 @@ func (g *VbGenerator) VisitCompare(c CompareInterface) {
 		}
 		g.testLevel--
 		w.print(")")
-		/*
-			case In:
-				w.print("Dans (")
-				w.print(")")
-		*/
 	}
 
 	if g.testLevel == 0 {

@@ -9,6 +9,7 @@ type Lexer struct {
 	Description  string   `xml:"description"`
 	CreationDate string   `xml:"dateCreation"`
 	UpdateDate   string
+	Initial      string `xml:"initial"`
 	Rules        []Rule `xml:"rules>rule"`
 }
 

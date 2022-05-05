@@ -35,7 +35,7 @@ func (g *PhpGenerator) DoStartDocument(vars any) {
 	// {{.Description}}
 
 	class ScannerData {
-		public string $state = "";
+		public string $state = "{{.Initial}}";
 		public string $ch = '';
 		public string $token = "";
 		public int $cnt = 0;
@@ -140,25 +140,25 @@ func (g *PhpGenerator) DoTestCharset(charset string) {
 	var test string
 	switch strings.ToUpper(charset) {
 	case "ALPHA":
-		test = "isAlpha($ch)"
+		test = "isAlpha($d->ch)"
 	case "BLANK":
-		test = "isBlank($ch)"
+		test = "isBlank($d->ch)"
 	case "CONTROL":
-		test = "isControl($ch)"
+		test = "isControl($d->ch)"
 	case "DIGIT":
-		test = "isDigit($ch)"
+		test = "isDigit($d->ch)"
 	case "GRAPH":
-		test = "isGraph($ch)"
+		test = "isGraph($d->ch)"
 	case "LOWER":
-		test = "isLower($ch)"
+		test = "isLower($d->ch)"
 	case "PRINT":
-		test = "isPrint($ch)"
+		test = "isPrint($d->ch)"
 	case "PUNCT":
-		test = "isPunct($ch)"
+		test = "isPunct($d->ch)"
 	case "UPPER":
-		test = "isUpper($ch)"
+		test = "isUpper($d->ch)"
 	case "XDIGIT":
-		test = "isXDigit($ch)"
+		test = "isXDigit($d->ch)"
 	}
 	g.writer.print(test)
 }
@@ -209,30 +209,15 @@ func (g *PhpGenerator) VisitCompare(c CompareInterface) {
 	w.print("(")
 	switch c := c.(type) {
 	case *CompareEos:
-		w.print("asc($d->ch) === 0")
+		w.print("ord($d->ch) === 0")
 	case CompareAny:
 		w.print("true")
 	case *CompareChar:
 		w.print("$d->ch === " + g.Quote(c.ch))
 	case *CompareCharset:
 		g.DoTestCharset(c.Name)
-	case *CompareLike:
-		w.print("preg_match('/" + g.Escape(c.Expression) + "/', $d->ch)")
-	case *CompareAnd:
-		if g.testLevel > 0 {
-			w.print("(")
-		}
-		g.testLevel++
-		for index, child := range c.childs {
-			if index > 0 {
-				w.print(" && ")
-			}
-			child.accept(g)
-		}
-		g.testLevel--
-		if g.testLevel > 0 {
-			w.print(")")
-		}
+	case *CompareIn:
+		w.print("strpos(" + g.Quote(c.Expression) + ", $d->ch)!==false")
 	case *CompareOr:
 		if g.testLevel > 0 {
 			w.print("(")
@@ -248,11 +233,6 @@ func (g *PhpGenerator) VisitCompare(c CompareInterface) {
 		if g.testLevel > 0 {
 			w.print(")")
 		}
-		/*
-			case In:
-				w.print("Dans (")
-				w.print(")")
-		*/
 	}
 
 	if g.testLevel == 0 {
