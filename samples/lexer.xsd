@@ -46,6 +46,7 @@
             <xs:element name="unicode" type="UnicodeType" />
             <xs:element name="in" type="xs:string" />
             <xs:element name="or" type="GroupOperationType" />
+            <xs:element name="any" />
         </xs:choice>            
     </xs:complexType>
 
@@ -58,17 +59,24 @@
             <xs:element name="unicode" type="UnicodeType" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element name="in" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element name="or" type="GroupOperationType" maxOccurs="unbounded" minOccurs="0" />
+            <xs:element name="any" />
+            <xs:element name="between">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="start"></xs:element>
+                        <xs:element name="stop"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:sequence>
 
     </xs:complexType>
 
     <!--
-        CHAR: la caractère en lui-même
+        CHAR: le caractère en lui-même
         CHARSET: le nom d'un ensemble de caractères Ascii. Un parmi: DIGIT, PUNCT, ALPHA, UPPER, LOWER, BLANK
         NAME: le nom d'un caractère. 
         UNICODE: code du caractère
-        LIKE: 
-        AND: combinaison de tests
         OR: alternatives
     -->
 
@@ -77,16 +85,13 @@
             <xs:enumeration value="DIGIT" />
             <xs:enumeration value="XDIGIT" />
             <xs:enumeration value="ALPHA" />
+            <xs:enumeration value="ALNUM" />
             <xs:enumeration value="UPPER" />
             <xs:enumeration value="LOWER" />
             <xs:enumeration value="PUNCT" />
             <xs:enumeration value="SPACE" />
             <xs:enumeration value="CONTROL" />
         </xs:restriction>
-    </xs:simpleType>
-
-    <xs:simpleType name="like">
-        <xs:restriction base="xs:string" />
     </xs:simpleType>
 
     <xs:simpleType name="UnicodeType">

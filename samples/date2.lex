@@ -4,11 +4,11 @@
 >
     <name>Date1</name>
     <author>Guillaume de Lestanville</author>
-    <description>Premier exemple simple d'analyse de date</description>
+    <description>Analyse d'une date au format français</description>
     <dateCreation>2020-12-10</dateCreation>
     <initial>0</initial>
     <rules>
-        <rule id="1" from="0" to="0" repeat="3">
+        <rule id="1" from="0" to="0" repeat="2">
             <test>
                 <charset>DIGIT</charset>
             </test>
@@ -19,33 +19,42 @@
                 <in>-/.</in>
             </test>
             <reset>true</reset>
-            <action>Separator</action>
+            <action>setJour</action>
         </rule>
-        <rule id="3" from="1" to="1" repeat="3">
+        <rule id="3" from="0" to="3">
+            <test><eos></eos></test>
+            <action>setJour</action>
+        </rule>
+        <rule id="4" from="1" to="1" repeat="2">
             <test>
                 <charset>DIGIT</charset>
             </test>
             <concat>true</concat>
         </rule>
-        <rule id="4" from="1" to="2">
+        <rule id="5" from="1" to="2">
             <test>
                 <in>-/.</in>
             </test>
             <reset>true</reset>
-            <action>Separator</action>
+            <action>setMois</action>
         </rule>
-        <rule id="5" from="2" to="2" repeat="3">
+        <rule id="6" from="1" to="3">
+            <test><eos></eos></test>
+            <action>setMois</action>
+        </rule>
+        <rule id="7" from="2" to="2" repeat="4">
             <test>
                 <charset>DIGIT</charset>
             </test>
             <concat>true</concat>
         </rule>
-        <rule id="6" from="2" to="2">
-            <test>
-                <eos />
-             </test>
-             <final>true</final>
-            <action>Separator</action>
+        <rule id="8" from="2" to="3">
+            <test><eos></eos></test>
+            <action>setAnnee</action>
+        </rule>
+        <rule id="9" from="3" to="3">
+            <test><any/></test>
+            <final>true</final>
         </rule>
     </rules>
 </lexer>
