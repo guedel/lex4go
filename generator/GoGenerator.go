@@ -8,6 +8,7 @@ import (
 type GoGenerator struct {
 	writer    CodeWriter
 	testLevel int
+	functions []string
 }
 
 func (g *GoGenerator) Quote(c string) string {
@@ -37,26 +38,97 @@ package Scanner
 
 import (
 	"fmt"
-	"regexp"
+	"strings"
 )	
 
 type ScannerData struct {
 	state string
-	ch string
+	ch rune
 	token string
 	cnt int
 }
 
-func like(ch string, expr string) bool {
-	result,_ := regexp.MatchString(expr, ch)
-	return result
-}
 `
 	g.writer.printTemplate(tpl, vars)
 	g.writer.indentation = 1
 }
 
 func (g *GoGenerator) DoEndDocument(vars any) {
+	// Ici on ajoute les fonctions demandées
+	w := &(g.writer)
+	for _, fn := range g.functions {
+		switch fn {
+		case "isAlpha":
+			w.nl()
+			w.println("func isAlpha(ch rune) bool {").indent()
+			w.println("return isLower(ch) || isUpper(ch)").unindent()
+			w.println("}")
+			g.functions = AddUnique(g.functions, "isLower")
+			g.functions = AddUnique(g.functions, "isUpper")
+		case "isAlNum":
+			w.nl()
+			w.println("func isAlNum(ch rune) bool {").indent()
+			w.println("return isAlpha(ch) || isDigit(ch)").unindent()
+			w.println("}")
+			g.functions = AddUnique(g.functions, "isAlpha")
+			g.functions = AddUnique(g.functions, "isDigit")
+
+		case "isDigit":
+			w.nl()
+			w.println("func isDigit(ch rune) bool {").indent()
+			w.println("return ch >= 48 && ch <= 57").unindent()
+			w.println("}")
+
+		case "isUpper":
+			w.nl()
+			w.println("func isUpper(ch rune) bool {").indent()
+			w.println("return ch >= 65 && ch <= 90").unindent()
+			w.println("}")
+
+		case "isLower":
+			w.nl()
+			w.println("func isLower(ch rune) bool {").indent()
+			w.println("return ch >= 97 && ch <= 122").unindent()
+			w.println("}")
+
+		case "isPunct":
+			w.nl()
+			w.println("func isPunct(ch rune) bool {").indent()
+			w.println("return (ch >= 33 && ch <= 47) || (ch >= 58 && ch <= 64) || (ch >= 91 && ch <= 96) || (ch >= 123 && ch <= 126)").unindent()
+			w.println("}")
+
+		case "isControl":
+			w.nl()
+			w.println("func isControl(ch rune) bool {").indent()
+			w.println("return (ch >= 0 && ch <= 31) || ch == 127").unindent()
+			w.println("}")
+
+		case "isBlank":
+			w.nl()
+			w.println("func isBlank(ch rune) bool {").indent()
+			w.println("return ch == 32 || ch == 9").unindent()
+			w.println("}")
+		case "isSpace":
+			w.nl()
+			w.println("func isSpace(ch rune) bool {").indent()
+			w.println("return ch == 32 || (ch >= 9 && ch <= 13)").unindent()
+			w.println("}")
+
+		case "isGraph":
+			w.nl()
+			w.println("func isGraph(ch rune) bool {").indent()
+			w.println("return isAlNum(ch) || isPunct(ch)").unindent()
+			w.println("}")
+			g.functions = AddUnique(g.functions, "isAlNum")
+			g.functions = AddUnique(g.functions, "isPunct")
+
+		case "isXDigit":
+			w.nl()
+			w.println("func isXDigit(ch rune) bool {").indent()
+			w.println("return (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 70) || (ch >= 97 && ch <= 102)").unindent()
+			w.println("}")
+		}
+	}
 }
 
 func (g *GoGenerator) DoGenerateProlog(vars any) {
@@ -66,14 +138,15 @@ func Scanner(s string) error {
 
 	d := ScannerData{
 		state: "0",
-		ch: "",
+		ch: 0,
 		token: "",
 		cnt: 0,
 	}
 
-	s = s + string(0)
+	runes := []rune(s)
+	runes = append(runes, 0)
 
-	for p := 0;p < len(s); p++ {
+	for p := 0;p < len(runes); p++ {
 		if d.state == oldstate {
 			d.cnt ++
 		} else {
@@ -81,7 +154,7 @@ func Scanner(s string) error {
 		}
 
 		oldstate = d.state
-		d.ch = s[p]
+		d.ch = runes[p]
 
 		switch d.state {
 `
@@ -127,30 +200,37 @@ func (g *GoGenerator) DoElseIf() {
 }
 
 func (g *GoGenerator) DoTestCharset(charset string) {
-	var test string
-	switch strings.ToUpper(charset) {
+	fn := ""
+	charset = strings.ToUpper(charset)
+	switch charset {
 	case "ALPHA":
-		test = "isAlpha(ch)"
+		fn = "isAlpha"
+	case "ALNUM":
+		fn = "isAlNum"
 	case "BLANK":
-		test = "isBlank(ch)"
+		fn = "isBlank"
 	case "CONTROL":
-		test = "isControl(ch)"
+		fn = "isControl"
 	case "DIGIT":
-		test = "isDigit(ch)"
+		fn = "isDigit"
 	case "GRAPH":
-		test = "isGraph(ch)"
+		fn = "isGraph"
 	case "LOWER":
-		test = "isLower(ch)"
+		fn = "isLower"
 	case "PRINT":
-		test = "isPrint(ch)"
+		fn = "isPrint"
 	case "PUNCT":
-		test = "isPunct(ch)"
+		fn = "isPunct"
 	case "UPPER":
-		test = "isUpper(ch)"
+		fn = "isUpper"
 	case "XDIGIT":
-		test = "isXDigit(ch)"
+		fn = "isXDigit"
 	}
-	g.writer.print(test)
+	if fn != "" {
+		g.writer.print(fn)
+		g.writer.print("(d.ch)")
+		g.AddWithDependencies(fn)
+	}
 }
 
 func (g *GoGenerator) DoTestAny() {
@@ -177,7 +257,7 @@ func (g *GoGenerator) DoResetToken() {
 }
 
 func (g *GoGenerator) DoAddToToken() {
-	g.writer.println("d.token = d.token + d.ch")
+	g.writer.println("d.token = d.token + string(d.ch)")
 }
 
 func (g *GoGenerator) DoNewState(state string) {
@@ -209,7 +289,7 @@ func (g *GoGenerator) VisitCompare(c CompareInterface) {
 	case *CompareCharset:
 		g.DoTestCharset(c.Name)
 	case *CompareIn:
-		w.print("d.ch dans (" + c.Expression + ")")
+		w.print("strings.ContainsRune(" + g.Quote(c.Expression) + ", d.ch)")
 	case *CompareOr:
 		w.print("(")
 		g.testLevel++
@@ -221,14 +301,51 @@ func (g *GoGenerator) VisitCompare(c CompareInterface) {
 		}
 		g.testLevel--
 		w.print(")")
-		/*
-			case In:
-				w.print("Dans (")
-				w.print(")")
-		*/
 	}
 
 	if g.testLevel == 0 {
 		w.println(" {").indent()
+	}
+}
+
+func (g *GoGenerator) AddWithDependencies(fn string) {
+	switch fn {
+	case "isAlpha":
+		g.functions = AddUnique(g.functions, fn)
+		g.AddWithDependencies("isUpper")
+		g.AddWithDependencies("isLower")
+
+	case "isAlNum":
+		g.functions = AddUnique(g.functions, fn)
+		g.AddWithDependencies("isAlpha")
+		g.AddWithDependencies("isDigit")
+
+	case "isDigit":
+		g.functions = AddUnique(g.functions, fn)
+
+	case "isUpper":
+		g.functions = AddUnique(g.functions, fn)
+
+	case "isLower":
+		g.functions = AddUnique(g.functions, fn)
+
+	case "isPunct":
+		g.functions = AddUnique(g.functions, fn)
+
+	case "isControl":
+		g.functions = AddUnique(g.functions, fn)
+
+	case "isBlank":
+		g.functions = AddUnique(g.functions, fn)
+	case "isSpace":
+		g.functions = AddUnique(g.functions, fn)
+
+	case "isGraph":
+		g.functions = AddUnique(g.functions, fn)
+		g.AddWithDependencies("isAlNum")
+		g.AddWithDependencies("isPunct")
+
+	case "isXDigit":
+		g.functions = AddUnique(g.functions, fn)
 	}
 }

@@ -48,7 +48,7 @@ func GenerateStateEngine(lexer Lexer, gen generator.GeneratorInterface, testMode
 			s := rule.Action
 			gen.DoAction(s, transition, useLoop, testMode)
 			if genProto {
-				actions = addUnique(actions, rule.Action)
+				actions = generator.AddUnique(actions, rule.Action)
 			}
 		}
 
@@ -74,20 +74,4 @@ func GenerateStateEngine(lexer Lexer, gen generator.GeneratorInterface, testMode
 	}
 	gen.DoEndDocument(vars)
 	return nil
-}
-
-/**
- * N'ajoute que si le token n'existe pas encore
- */
-func addUnique(vars []string, token string) []string {
-	find := false
-	for _, value := range vars {
-		if value == token {
-			find = true
-		}
-	}
-	if !find {
-		return append(vars, token)
-	}
-	return vars
 }
